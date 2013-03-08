@@ -1,0 +1,13 @@
+.error{
+	color:red;
+	font-size:12pt;
+}
+.text-center{
+	text-align:center;
+}
+.bottom-gap{
+	margin-bottom:12px;
+}
+.top-gap{
+	margin-top:12px;
+}
