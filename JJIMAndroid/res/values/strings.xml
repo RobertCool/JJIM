@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, LoginActivity!</string>
+    <string name="app_name">JJIMAndroid</string>
+    <string name="login_accout_string">账号：</string>
+    <string name="login_pwd_string">密码：</string>
+    <string name="login_button_string">登录</string>
+    <string name="im_tab_friend">好友</string>
+    <string name="im_tab_chatting">会话</string>
+    <string name="im_tab_crowd">群组</string>
+    <string name="im_list_image_description">头像</string>
+    <string name="login_button_register_string">注册</string>
+    <string name="login_checkbox_remember_string">记住密码</string>
+    <string name="login_checkbox_hideline_string">隐身</string>
+    <string name="app_description">JJ通信</string>
+
+</resources>

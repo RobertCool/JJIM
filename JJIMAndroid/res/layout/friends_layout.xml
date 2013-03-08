@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/ChatingBG"
+    android:orientation="vertical" >
+
+    <!--
+        LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/friend_search_edit"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="搜索"
+                android:singleLine="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:textColor="#000"
+                android:drawableLeft="@drawable/search_bar_icon_normal" 
+                android:background="@drawable/search_bar_edit_bg" >               
+            </EditText>
+            
+        </LinearLayout>
+    -->
+
+    <ExpandableListView
+        android:id="@+id/friend_listview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/White"
+        android:cacheColorHint="#00000000"
+        android:footerDividersEnabled="true"
+        android:headerDividersEnabled="true" >
+    </ExpandableListView>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@color/Divider"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+</LinearLayout>

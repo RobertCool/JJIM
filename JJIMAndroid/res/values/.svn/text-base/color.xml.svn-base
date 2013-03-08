@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="Grey">#e8e8e8</color>
+    <color name="Black">#000000</color>
+    <color name="Blue">#3399cc</color>
+    <color name="Gold">#FFD700</color>
+    <color name="White">#FFFFFF</color>
+    <color name="Burlywood">#DEB887</color>
+    <color name="OliveDrab2">#B3EE3A</color>
+    <color name="Azure">#F0FFFF</color>
+    <color name="LightBlue">#63B8FF</color>
+    <color name="deepGrey">#b4b4b4</color>
+    <color name="Green">#009933</color>
+    <color name="textColor">#000000</color>
+    <color name="LightBlack">#333333</color>
+    <color name="Silver">#33333333</color>
+    <color name="ChatingBG">#FFE9E9E9</color>
+    <color name="Divider">#FFD3D3D3</color>
+
+</resources>

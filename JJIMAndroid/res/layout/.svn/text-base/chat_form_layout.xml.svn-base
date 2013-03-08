@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <RelativeLayout 
+                android:paddingTop="2dip"
+        android:paddingBottom="2dip"
+        android:background="@color/LightBlue" 
+        android:layout_alignParentTop="true" android:id="@+id/chat_form_topbar" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <Button 
+              android:layout_marginLeft="5dip"
+             android:layout_marginTop="2dip"
+            android:gravity="center_vertical"
+             android:background="@drawable/btn_style_blue"
+            android:id="@+id/chat_top_choose" android:layout_alignParentLeft="true" android:text="选项" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button 
+             android:layout_marginRight="5dip"
+             android:layout_marginTop="2dip"
+             android:background="@drawable/btn_style_blue"
+            android:gravity="center_vertical"
+            android:id="@+id/chat_top_back" android:layout_alignParentRight="true" android:text="返回" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_centerInParent="true"
+            android:layout_toLeftOf="@id/chat_top_back"
+            android:layout_toRightOf="@id/chat_top_choose"
+            android:gravity="center_horizontal"
+            android:text="RobertCool"  android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+    </RelativeLayout>
+    
+    <RelativeLayout 
+        android:paddingTop="3dip"
+        android:paddingBottom="1dip"
+        android:background="@color/LightBlack"
+        android:layout_alignParentBottom="true" android:id="@+id/chat_form_bottombar" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <Button 
+            android:layout_margin="2dip"
+            android:gravity="center_vertical"
+            android:layout_alignParentLeft="true" android:id="@+id/chat_bottom_emotion" android:text="表情" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button 
+            android:layout_margin="2dip"
+            android:gravity="center_vertical"
+            android:layout_toRightOf="@id/chat_bottom_emotion" android:id="@+id/chat_bottom_sendpic" android:text="图片" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button 
+            android:layout_margin="2dip"
+            android:gravity="center_vertical"
+            android:background="@drawable/btn_style_blue"
+            android:layout_alignParentRight="true" android:id="@+id/chat_bottom_send" android:text="发送" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <EditText 
+            android:layout_margin="2dip"
+            android:gravity="center_vertical"
+            android:layout_toLeftOf="@id/chat_bottom_send" android:layout_toRightOf="@id/chat_bottom_sendpic" android:layout_width="fill_parent" android:layout_height="wrap_content"/>
+    </RelativeLayout>
+    
+    <ListView 
+        android:id="@+id/chat_form_list"
+        android:layout_above="@id/chat_form_bottombar"
+        				android:layout_below="@id/chat_form_topbar"
+        				android:layout_width="fill_parent"
+        				android:layout_height="fill_parent"
+        				android:background="@color/ChatingBG"
+        				android:divider="@null"
+    android:dividerHeight="5dp"
+    android:stackFromBottom="true"
+    android:scrollbarStyle="outsideOverlay" 
+    android:cacheColorHint="#0000"
+        ></ListView>
+
+</RelativeLayout>

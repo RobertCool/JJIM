@@ -1,0 +1,51 @@
+/**
+ * 
+ */
+package cn.edu.scau.hci.robert.common;
+
+import java.io.Serializable;
+
+/**
+ * @author robert
+ *
+ */
+public class SettingAttribute  implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public static SettingAttribute instance = new SettingAttribute();
+	
+	private boolean isRemember = true;
+	private String userName;
+	private String password;
+	private boolean isHideLine = false;
+	
+	public boolean isRemember() {
+		return isRemember;
+	}
+	public void setRemember(boolean isRemember) {
+		this.isRemember = isRemember;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public boolean isHideLine() {
+		return isHideLine;
+	}
+	public void setHideLine(boolean isHideLine) {
+		this.isHideLine = isHideLine;
+	}
+
+}

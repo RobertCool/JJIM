@@ -1,0 +1,36 @@
+package cn.edu.scau.hci.robert.common;
+
+import java.io.File;
+
+import android.content.Context;
+import android.util.Log;
+
+public class SetupHelper {
+	
+	private final static String TAG = "SetupHelper";
+	
+	/**
+	 * 程序第一次启动扫描数据库媒体文件，并序列化到播放列表文件当中
+	 * */
+	public static boolean Setup(){
+		Log.i(TAG, "Setup Start");
+		try{
+			File file = new File(FilePath.getRoot());
+			if(!file.exists()){
+				Log.i(TAG, "create new folder");
+				file.mkdirs();
+				File friendFile		= new File( FilePath.getFriendcachepath());
+				File imageFile 	= new File( FilePath.getFriendimagecache());
+				
+				friendFile.mkdirs();
+				imageFile.mkdirs();
+			}
+		}
+		catch(Exception e){
+			Log.e(TAG, "Setup Error:"+e.getCause());
+			return false;
+		}
+		return true;
+	}
+
+}

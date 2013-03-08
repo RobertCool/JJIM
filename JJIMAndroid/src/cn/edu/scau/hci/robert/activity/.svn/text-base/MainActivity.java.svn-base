@@ -1,0 +1,312 @@
+/**
+ * 
+ */
+package cn.edu.scau.hci.robert.activity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import cn.edu.scau.hci.robert.R;
+import cn.edu.scau.hci.robert.adapter.ChattingListAdapter;
+import cn.edu.scau.hci.robert.adapter.GroupAdapter;
+import cn.edu.scau.hci.robert.adapter.IMListAdapter;
+import cn.edu.scau.hci.robert.common.Code;
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.os.Bundle;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ExpandableListView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.TextView;
+
+/**
+ * @author robert
+ *
+ */
+public class MainActivity extends Activity {
+	
+	private ViewPager viewPager;
+	private View chattingView,friendsView,crowdView;
+	private ArrayList<View> views = new ArrayList<View>();
+	
+	// 显示当前选择的选项卡
+	private TextView one_text,two_text,three_text;
+	
+	private ListView chattingListView,crowdListView;
+	private ExpandableListView friendsListView;
+	
+	private List<Map<String, Object>> chattingList =new  ArrayList<Map<String,Object>>(),
+			groupList = new ArrayList<Map<String,Object>>(),
+			crowdList=new  ArrayList<Map<String,Object>>();
+	private List<Map<String, Object>> testList;
+	
+	private List<List<Map<String, Object>>> friendsList = new ArrayList<List<Map<String,Object>>>();
+	
+	private IMListAdapter crowdAdapter;
+	private GroupAdapter friendAdapter;
+	private ChattingListAdapter chattingAdapter;
+	
+	private ImageView userHeadImage,userStatusImage , tabUnderlineImage;
+	private TextView userNameText;
+	
+	private int bmpW,offset,currentIndex = 0;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+		InitViews();
+		InitData();
+		
+		chattingAdapter = new ChattingListAdapter(testList, this);
+		crowdAdapter = new IMListAdapter(testList, this);
+		
+		chattingListView.setAdapter(chattingAdapter);
+		chattingListView.setDivider(null);
+		
+		crowdListView.setAdapter(crowdAdapter);
+		
+        friendAdapter= new GroupAdapter(groupList, friendsList, this);
+		friendsListView.setAdapter(friendAdapter);
+		friendsListView.setGroupIndicator(null);
+		friendsListView.setDivider(null);
+	}
+
+	private void InitViews(){
+		one_text	=	(TextView)findViewById(R.id.text_one);
+		two_text	= (TextView)findViewById(R.id.text_two);
+		three_text	=	(TextView)findViewById(R.id.text_three);
+		
+		tabUnderlineImage	=	(ImageView)findViewById(R.id.im_tab_cursor);
+		one_text.setTextColor(Color.WHITE);
+		InitTabUnderline();
+		
+		userHeadImage  = (ImageView)findViewById(R.id.im_tab_bar_head);
+		userStatusImage = (ImageView)findViewById(R.id.im_tab_bar_status);
+		userNameText     = (TextView)findViewById(R.id.im_tab_bar_name);
+		
+		viewPager = (ViewPager) findViewById(R.id.view_pager);
+		views = new ArrayList<View>();
+		LayoutInflater mInflater = getLayoutInflater();
+
+		chattingView  = mInflater.inflate(R.layout.chatting_layout, null);
+		friendsView 	= mInflater.inflate(R.layout.friends_layout, null);
+		crowdView 		= mInflater.inflate(R.layout.crowd_layout, null);
+		
+		chattingListView = (ListView)chattingView.findViewById(R.id.chatting_listview);
+		friendsListView 	= (ExpandableListView)friendsView.findViewById(R.id.friend_listview);
+		crowdListView 	= (ListView)crowdView.findViewById(R.id.crowd_listview);
+
+		views.add(friendsView);
+		views.add(crowdView);
+		views.add(chattingView);
+		
+		viewPager.setAdapter(new MyPagerAdapter(views));
+		viewPager.setCurrentItem(0);
+		viewPager.setOnPageChangeListener(new mOnPageChangeListener());
+		
+		one_text.setOnClickListener(new PageOnClickListener(0));
+		two_text.setOnClickListener(new PageOnClickListener(1));
+		three_text.setOnClickListener(new PageOnClickListener(2));
+		
+		crowdListView.setOnItemClickListener(new OnItemClickListener() {
+
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				
+				Log.i("OnItemClick", arg0.getClass()+":"+arg1.getClass()+":" + arg2 +":" + arg3);
+				
+				Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+				startActivity(intent);
+			}
+		});
+	}
+	
+	private void InitData(){
+		testList = new ArrayList<Map<String, Object>>();
+		for(int i = 0;i<15;i++){
+			Map<String,Object> map = new HashMap<String, Object>();
+			map.put(IMListAdapter.NAMETEXT, "用户"+i);
+			map.put(IMListAdapter.NOTETEXT, "个性签名"+i);
+			testList.add(map);
+		}
+		
+	    for (int i = 0; i < 5; i++) {
+            Map<String, Object> curGroupMap = new HashMap<String, Object>();
+            curGroupMap.put(GroupAdapter.GROUP_TEXT, "Group " + i);
+            groupList.add(curGroupMap);
+              
+            List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
+            for (int j = 0; j < 5; j++) {
+                Map<String, Object> curChildMap = new HashMap<String, Object>();
+                curChildMap.put(GroupAdapter.CHILD_TEXT, "Child " + j);
+                curChildMap.put(GroupAdapter.CHILD_NOTE, "note " + j);
+                children.add(curChildMap);
+            }
+            friendsList.add(children);
+        }
+        
+		userNameText.setText("RobertCool");
+	}
+	
+	private void InitTabUnderline(){
+		bmpW = BitmapFactory.decodeResource(getResources(), R.drawable.tab_underline).getWidth();
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		int screenW = dm.widthPixels;
+		offset = (screenW/3 - bmpW)/2;
+		Matrix matrix = new Matrix();
+		matrix.postTranslate(offset, 0);
+		
+		tabUnderlineImage.setImageMatrix(matrix);
+	}
+	
+	private class PageOnClickListener implements OnClickListener{
+		
+		private int index = 0;
+		
+		public PageOnClickListener(int i){
+			this.index = i ;
+		}
+
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			viewPager.setCurrentItem(index);
+		}
+		
+	}
+	
+	private class mOnPageChangeListener implements OnPageChangeListener {
+
+ 		int one = offset * 2 + bmpW;// 页卡1 -> 页卡2 偏移量
+ 		int two = one * 2;					// 页卡1 -> 页卡3 偏移量
+ 		
+		public void onPageScrollStateChanged(int arg0) {
+			// PrintHelper.Info(TAG,"onPageScrollStateChanged"+
+			// String.valueOf(arg0));
+		}
+
+		public void onPageScrolled(int arg0, float arg1, int arg2) {
+			// PrintHelper.Info(TAG, "onPageScrolled:"+String.valueOf(arg0)
+			// +"--" +String.valueOf(arg1) +"--" +String.valueOf(arg2));
+		}
+
+		public void onPageSelected(int index) {
+			// 根据选中的位置，选项卡中的radioButton设置成相应的选中状态
+			Animation anim = null;
+			
+			switch(index){
+			case 0:
+				if(currentIndex == 1){
+					anim = new TranslateAnimation(one, 0, 0, 0);
+				}else if(currentIndex == 2){
+					anim = new TranslateAnimation(two, 0, 0, 0);
+				}
+				break;
+			case 1:
+				if(currentIndex == 0){
+					anim = new TranslateAnimation(offset, one, 0, 0);
+				}else if(currentIndex == 2){
+					anim = new TranslateAnimation(two, one, 0, 0);
+				}
+				break;
+			case 2:
+				if(currentIndex == 1){
+					anim = new TranslateAnimation(one, two, 0, 0);
+				}else if(currentIndex == 0){
+					anim = new TranslateAnimation(offset, two, 0, 0);
+				}
+				break;
+			}
+			currentIndex = index;
+			
+			anim.setFillAfter(true);// True:图片停在动画结束位置
+			anim.setDuration(300);
+			anim.setAnimationListener(new AnimationListener() {
+				
+				public void onAnimationStart(Animation animation) {
+				}
+				
+				public void onAnimationRepeat(Animation animation) {
+				}
+				
+				public void onAnimationEnd(Animation animation) {
+					switch(currentIndex){
+					case 0:
+						one_text.setTextColor(Color.WHITE);
+						two_text.setTextColor(Color.BLACK);
+						three_text.setTextColor(Color.BLACK);
+						break;
+					case 1:
+						one_text.setTextColor(Color.BLACK);
+						two_text.setTextColor(Color.WHITE);
+						three_text.setTextColor(Color.BLACK);
+						break;
+					case 2:
+						one_text.setTextColor(Color.BLACK);
+						two_text.setTextColor(Color.BLACK);
+						three_text.setTextColor(Color.WHITE);
+						break;
+					}
+				}
+			});
+			tabUnderlineImage.startAnimation(anim);
+			
+		}
+
+	}
+
+	private class MyPagerAdapter extends PagerAdapter {
+
+		private ArrayList<View> views;
+
+		public MyPagerAdapter(ArrayList<View> views) {
+			this.views = views;
+		}
+
+		@Override
+		public void destroyItem(View container, int position, Object object) {
+			// TODO 此处欲实现循环左右移动的效果，以后再实现
+			((ViewPager) container).removeView(views.get(position));
+		}
+
+		@Override
+		public int getCount() {
+			return views.size();
+		}
+
+		@Override
+		public Object instantiateItem(View container, int position) {
+			// TODO Auto-generated method stub
+			((ViewPager) container).addView(views.get(position), 0);
+			return views.get(position);
+		}
+
+		@Override
+		public boolean isViewFromObject(View arg0, Object arg1) {
+			return arg0 == arg1;
+		}
+
+	}
+
+}

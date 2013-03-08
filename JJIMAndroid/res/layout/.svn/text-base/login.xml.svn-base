@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:gravity="center_vertical"
+    android:orientation="vertical" >
+    
+    <TextView
+        android:textColor="@color/White"
+        android:padding="20dip"
+         android:layout_width="fill_parent" android:gravity="center_horizontal" android:layout_height="wrap_content" android:textSize="48dip" android:text="@string/app_description"/>
+    
+    <LinearLayout 
+        android:layout_marginLeft="20dip" android:layout_marginRight="20dip"
+        android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        
+        <ImageView android:background="@drawable/sc_am_head" android:src="@drawable/icon" android:layout_height="match_parent" android:layout_width="wrap_content" android:contentDescription="@string/im_list_image_description"/>
+        
+        <LinearLayout android:layout_width="match_parent" android:orientation="vertical" android:layout_height="fill_parent">
+            
+                <EditText 
+			        android:hint="@string/login_accout_string"
+			        android:id="@+id/login_account_edit"  android:inputType="text"  android:layout_width="fill_parent" android:layout_height="wrap_content" />
+			   
+				<EditText  
+				    android:hint="@string/login_pwd_string"
+				    android:id="@+id/login_pwd_edit"  android:inputType="textPassword"  android:layout_width="fill_parent"  android:layout_height="wrap_content" />
+				
+        </LinearLayout>
+        
+    </LinearLayout>
+
+	<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="horizontal"
+ 	    android:layout_marginTop="5dip"
+ 	    android:layout_marginBottom="5dip"
+ 	    android:paddingLeft="50dip"
+ 	    android:paddingRight="40dip"
+ 	    >
+	    <CheckBox
+	    android:id="@+id/login_remember_check"
+	     android:checked="true" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/login_checkbox_remember_string"
+	     android:layout_weight="1"/>
+		<CheckBox 
+		    android:id="@+id/login_hideline_check"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:text="@string/login_checkbox_hideline_string"
+		    android:layout_weight="1"
+		    />
+	    
+	</LinearLayout>
+	
+		<Button 
+		    android:layout_marginLeft="30dip"
+		    android:layout_marginRight="30dip"
+		    android:layout_marginTop="10dip"
+		    android:layout_marginBottom="5dip"
+		      android:background="@drawable/acm_button" android:id="@+id/login_button"  android:text="@string/login_button_string"  android:layout_width="fill_parent"  android:layout_height="48dip"/>
+		
+		<Button android:background="@drawable/acm_button" 
+		     android:layout_marginLeft="30dip"
+		    android:layout_marginRight="30dip"
+		    android:id="@+id/login_register_button"  android:text="@string/login_button_register_string"  android:layout_width="fill_parent" android:layout_height="48dip"/>
+	
+</LinearLayout>
