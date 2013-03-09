@@ -45,20 +45,20 @@ public class FriendController extends Controller {
 		int page = PublicLib.ifNullToInt(this.getPara("page"), 1);
 		String groupId = this.getPara("GroupId");
 		String friendAccount = this.getPara("FriendAccount");
-		if(groupId == null){
-			//查看所有用户信息
-			Page<Friend> friends = Friend.dao.paginate(page, ConfigUtil.PAGE_SIZE, "select *", "from Friend");
-			this.renderJson(ResourceMessage.success(friends));
-		}else if(friendAccount != null){
-			Friend friend = Friend.dao.findFirst("select * from Friend where FriendAccount=?", friendAccount);
-			this.renderJson(ResourceMessage.success(friend));
-		}else{
-			if(page <= 0) page = 1;
+		if(groupId != null){
 			//查看登录用户的某组用户信息
 			User user = (User)this.getSession().getAttribute(ConfigUtil.SESSION_USER_KEY);
 			List<Friend> friends = Friend.dao.find("select * from Friend f, Group_Friend g, JGroup j where j.UserId = ?" +
 					" and g.GroupId = j.GroupId and f.FriendId = g.FriendId and g.GroupId = ?"
 					, user.get("UserId"), groupId);
+			this.renderJson(ResourceMessage.success(friends));
+		}else if(friendAccount != null){
+			Friend friend = Friend.dao.findFirst("select * from Friend where FriendAccount=?", friendAccount);
+			this.renderJson(ResourceMessage.success(friend));
+		}else{
+			//查看所有用户信息
+			if(page <= 0) page = 1;
+			Page<Friend> friends = Friend.dao.paginate(page, ConfigUtil.PAGE_SIZE, "select *", "from Friend");
 			this.renderJson(ResourceMessage.success(friends));
 		}
 
@@ -84,9 +84,15 @@ public class FriendController extends Controller {
 		String groupId = this.getPara("GroupId");
 		String friendId = this.getPara("FriendId");
 		
+		GroupFriend tempGroup = GroupFriend.dao.findFirst("select * from Group_Friend where FriendId=? and GroupId = ?", friendId,groupId);
+		if(tempGroup != null){
+			this.renderJson(ResourceMessage.error("该好友已在好友列表中"));
+			return;
+		}
+		
 		JGroup group = JGroup.dao.findById(groupId);
 		
-		if(group == null || !group.getStr("UserId").equals(user.getStr("UserId"))){
+		if(group == null || !group.get("UserId").equals(user.get("UserId"))){
 			this.renderJson(ResourceMessage.unreachable());
 			return;
 		}

@@ -20,6 +20,7 @@ import cn.edu.scau.hci.robert.adapter.GroupAdapter;
 import cn.edu.scau.hci.robert.adapter.IMListAdapter;
 import cn.edu.scau.hci.robert.common.Action;
 import cn.edu.scau.hci.robert.common.Code;
+import cn.edu.scau.hci.robert.common.ImCache;
 import cn.edu.scau.hci.robert.common.SettingAttribute;
 import cn.edu.scau.hci.robert.entity.Crowd;
 import cn.edu.scau.hci.robert.entity.Friend;
@@ -32,6 +33,7 @@ import cn.edu.scau.hci.robert.util.HttpUtil;
 import cn.edu.scau.hci.robert.util.Logger;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -73,7 +75,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	private ViewPager viewPager;
-	private View chattingView, friendsView, crowdView, tempView;
+	private View chattingView, friendsView, crowdView;
 	private ArrayList<View> views = new ArrayList<View>();
 	// 显示当前选择的选项卡
 	private TextView one_text, two_text, three_text;
@@ -94,17 +96,15 @@ public class MainActivity extends Activity {
 
 	private ImageView userHeadImage, userStatusImage, tabUnderlineImage;
 	private TextView userNameText;
+	private ProgressDialog proDialog;
 
 	private int bmpW, offset, currentIndex = 0;
 
-	// 好友分组数据
-	private List<JGroup> groups = new ArrayList<JGroup>();
-	private Map<Long, List<Friend>> friends = new HashMap<Long, List<Friend>>();
-	private List<Crowd> crowds = new ArrayList<Crowd>();
-
 	private final int GROUP_LIST = 1, GROUP_ERROR = 2, GROUP_LIST_RESULT = 3;
-	private final int CROWD_LIST = 4, CROWD_ERROR = 5;
+	private final int CROWD_LIST = 4, CROWD_ERROR = 5,CROWD_UPDATE = 7;
 	private final int IMAGE_GET = 6;
+
+	private boolean isCrowdLoaded = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -116,7 +116,7 @@ public class MainActivity extends Activity {
 
 		chattingAdapter = new ChattingListAdapter(testList, this);
 		chattingListView.setAdapter(chattingAdapter);
-		
+
 		this.getGroupList();
 	}
 
@@ -133,7 +133,8 @@ public class MainActivity extends Activity {
 		InitTabUnderline();
 
 		userHeadImage = (ImageView) findViewById(R.id.im_tab_bar_head);
-		this.getImage(R.id.im_tab_bar_head, SettingAttribute.getInstance().getUser().getUserIcon());
+		this.getImage(R.id.im_tab_bar_head, SettingAttribute.getInstance()
+				.getUser().getUserIcon());
 		userStatusImage = (ImageView) findViewById(R.id.im_tab_bar_status);
 		userNameText = (TextView) findViewById(R.id.im_tab_bar_name);
 		userNameText.setText(SettingAttribute.getInstance().getUser()
@@ -152,7 +153,7 @@ public class MainActivity extends Activity {
 		friendsListView = (ExpandableListView) friendsView
 				.findViewById(R.id.friend_listview);
 		crowdListView = (ListView) crowdView.findViewById(R.id.crowd_listview);
-		
+
 		friendsListView.setGroupIndicator(null);
 		friendsListView.setDivider(null);
 		chattingListView.setDivider(null);
@@ -182,6 +183,8 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+
+		proDialog = new ProgressDialog(this);
 	}
 
 	private void InitData() {
@@ -223,21 +226,22 @@ public class MainActivity extends Activity {
 				GroupService gs = new GroupService();
 				if (gs.getGroup(msg)) {
 					try {
+						Logger.i("Groups", (String) msg.obj);
 						JSONObject jsObj = new JSONObject((String) msg.obj);
 						if (jsObj.getBoolean("success")) {
 							FriendService fs = new FriendService();
 							JSONArray jsArray = jsObj.getJSONArray("result");
-							groups = new ArrayList<JGroup>();
-							friends = new HashMap<Long, List<Friend>>();
+							ImCache.groups = new ArrayList<JGroup>();
+							ImCache.friends = new HashMap<Long, List<Friend>>();
 							for (int i = 0; i < jsArray.length(); i++) {
 								JGroup j = JGroup.toGroup(jsArray.getString(i));
-								groups.add(j);
+								ImCache.groups.add(j);
 
 								Message tempMsg = new Message();
 								if (fs.getFriendsByGroupId(j.getGroupId()
 										.intValue(), tempMsg)) {
 									Logger.i("FriendList_byGroupId",
-											(String) msg.obj);
+											(String) tempMsg.obj);
 									JSONObject jsObj1 = new JSONObject(
 											(String) tempMsg.obj);
 									if (jsObj1.getBoolean("success")) {
@@ -246,10 +250,11 @@ public class MainActivity extends Activity {
 										List<Friend> tempFriends = new ArrayList<Friend>();
 										for (int t = 0; t < jsArray1.length(); t++) {
 											Friend f = Friend.toFriend(jsArray1
-													.getString(i));
+													.getString(t));
 											tempFriends.add(f);
 										}
-										friends.put(j.getGroupId(), tempFriends);
+										ImCache.friends.put(j.getGroupId(),
+												tempFriends);
 									}
 								}
 							}
@@ -272,14 +277,15 @@ public class MainActivity extends Activity {
 	private void initGroups() {
 		groupList = new ArrayList<Map<String, Object>>();
 		friendsList = new ArrayList<List<Map<String, Object>>>();
-		for (int i = 0; i < groups.size(); i++) {
+		for (int i = 0; i < ImCache.groups.size(); i++) {
 			Map<String, Object> curGroupMap = new HashMap<String, Object>();
-			curGroupMap.put(GroupAdapter.GROUP_TEXT, groups.get(i)
+			curGroupMap.put(GroupAdapter.GROUP_TEXT, ImCache.groups.get(i)
 					.getGroupName());
 			groupList.add(curGroupMap);
 
 			List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
-			List<Friend> tempFriends = friends.get(groups.get(i).getGroupId());
+			List<Friend> tempFriends = ImCache.friends.get(ImCache.groups
+					.get(i).getGroupId());
 			for (int j = 0; j < tempFriends.size(); j++) {
 				Map<String, Object> curChildMap = new HashMap<String, Object>();
 				curChildMap.put(GroupAdapter.CHILD_TEXT, tempFriends.get(j)
@@ -293,12 +299,14 @@ public class MainActivity extends Activity {
 		friendAdapter = new GroupAdapter(groupList, friendsList, this);
 		friendsListView.setAdapter(friendAdapter);
 		friendsListView.invalidate();
-		//TODO:这个地方要重新看看
-//		this.getCrowdList();
+		// TODO:这个地方要重新看看
 	}
 
 	/** 获取群列表 */
 	private void getCrowdList() {
+		proDialog.setTitle("群信息");
+		proDialog.setMessage("正在获取群信息……");
+		proDialog.show();
 		new Thread(new Runnable() {
 			public void run() {
 				// TODO Auto-generated method stub
@@ -311,11 +319,11 @@ public class MainActivity extends Activity {
 						JSONObject jsObj = new JSONObject((String) msg.obj);
 						if (jsObj.getBoolean("success")) {
 							JSONArray jsArray = jsObj.getJSONArray("result");
-							crowds = new ArrayList<Crowd>();
+							ImCache.crowds = new ArrayList<Crowd>();
 							for (int i = 0; i < jsArray.length(); i++) {
 								Crowd crowd = Crowd.toCrowd(jsArray
 										.getString(i));
-								crowds.add(crowd);
+								ImCache.crowds.add(crowd);
 							}
 						} else {
 							msg.what = CROWD_ERROR;
@@ -331,24 +339,25 @@ public class MainActivity extends Activity {
 			}
 		}).start();
 	}
-	
+
 	/** 显示群 */
-	private void initCrowds() {	
+	private void initCrowds() {
 		crowdList = new ArrayList<Map<String, Object>>();
-		Logger.i("Crowd_Size", crowds.size() +"");
-		for(int i = 0; i <  crowds.size(); i++){
+		Logger.i("Crowd_Size", ImCache.crowds.size() + "");
+		for (int i = 0; i < ImCache.crowds.size(); i++) {
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(IMListAdapter.NAMETEXT, crowds.get(i).getCrowdName());
-			map.put(IMListAdapter.NOTETEXT, crowds.get(i).getCrowdNote());
+			map.put(IMListAdapter.NAMETEXT, ImCache.crowds.get(i)
+					.getCrowdName());
+			map.put(IMListAdapter.NOTETEXT, ImCache.crowds.get(i)
+					.getCrowdNote());
 			crowdList.add(map);
 		}
-		
 
-		if(crowds.size() <= 0){
-			//这里设置没有群的消息
+		if (ImCache.crowds.size() <= 0) {
+			// 这里设置没有群的消息
 			crowdView.setBackgroundResource(R.drawable.head);
 			return;
-		}else{
+		} else {
 			crowdView.setBackgroundDrawable(null);
 			crowdAdapter = new IMListAdapter(crowdList, this);
 			crowdListView.setAdapter(crowdAdapter);
@@ -356,27 +365,29 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	/**获取图片*/
-	private void getImage(final int imageViewId, final String url){
-		new Thread(new Runnable(){
+	/** 获取图片 */
+	private void getImage(final int imageViewId, final String url) {
+		new Thread(new Runnable() {
 
 			public void run() {
 				Message msg = new Message();
 				msg.what = IMAGE_GET;
-				ImageService  is = new ImageService();
+				ImageService is = new ImageService();
 				msg.obj = is.getImage(url);
 				msg.arg1 = imageViewId;
 				mHandler.sendMessage(msg);
 			}
-			
+
 		}).start();
 	}
+
 	// TODO:处理消息
 	private Handler mHandler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
 			String message = "";
+			proDialog.dismiss();
 			switch (msg.what) {
 			case GROUP_LIST:
 				MainActivity.this.initGroups();
@@ -388,8 +399,15 @@ public class MainActivity extends Activity {
 				}
 				MainActivity.this.showMessageBox("错误", message);
 				break;
+			case CROWD_UPDATE:
+				MainActivity.this.getCrowdList();
+				break;
 			case CROWD_LIST:
-				MainActivity.this.initCrowds();
+				MainActivity.this.runOnUiThread(new Runnable(){
+					public void run(){
+						MainActivity.this.initCrowds();
+					}
+				});
 				break;
 			case CROWD_ERROR:
 				message = "获取群信息失败";
@@ -399,9 +417,10 @@ public class MainActivity extends Activity {
 				MainActivity.this.showMessageBox("错误", message);
 				break;
 			case IMAGE_GET:
-				if(msg.obj != null){
-					ImageView iv = (ImageView) MainActivity.this.findViewById(msg.arg1);
-					iv.setImageURI(Uri.fromFile(new File((String)msg.obj)));
+				if (msg.obj != null) {
+					ImageView iv = (ImageView) MainActivity.this
+							.findViewById(msg.arg1);
+					iv.setImageURI(Uri.fromFile(new File((String) msg.obj)));
 				}
 				break;
 			}
@@ -446,6 +465,8 @@ public class MainActivity extends Activity {
 			this.startActivity(intent);
 			break;
 		case Menu.FIRST + 4:
+			Intent itent = new Intent(MainActivity.this, CreateCrowdActivity.class);
+			this.startActivity(itent);
 			// TODO:创建群
 			break;
 		case Menu.FIRST + 5:
@@ -560,6 +581,10 @@ public class MainActivity extends Activity {
 			anim.setAnimationListener(new AnimationListener() {
 
 				public void onAnimationStart(Animation animation) {
+					if (!isCrowdLoaded) {
+						mHandler.sendEmptyMessage(CROWD_UPDATE);
+						isCrowdLoaded = true;
+					}
 				}
 
 				public void onAnimationRepeat(Animation animation) {
@@ -622,6 +647,18 @@ public class MainActivity extends Activity {
 			return arg0 == arg1;
 		}
 
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (SettingAttribute.getInstance().isFriendListChanged()) {
+			this.initGroups();
+			SettingAttribute.getInstance().setFriendListChanged(false);
+		} else if (SettingAttribute.getInstance().isCrowdListChanged()) {
+			this.initCrowds();
+			SettingAttribute.getInstance().setCrowdListChanged(false);
+		}
 	}
 
 }

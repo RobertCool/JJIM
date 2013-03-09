@@ -34,6 +34,12 @@
         </activity>
         <activity android:name=".activity.SearchActivity" >
         </activity>
+        <activity android:name=".activity.SearchResultActivity" >
+        </activity>
+        <activity android:name=".activity.InfoActivity" >
+        </activity>
+        <activity android:name=".activity.CreateCrowdActivity" >
+        </activity>
 
         <service android:name=".activity.JJIMService" >
         </service>

@@ -70,7 +70,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 			}
 			
 			public void afterTextChanged(Editable s) {
-				headImageView.setImageResource(R.drawable.icon);
+				
 			}
 		});
 
@@ -93,6 +93,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 
 		headImageView = (ImageView) this.findViewById(R.id.login_head);
 		ImageService is = new ImageService();
+		
+		if(SettingAttribute.getInstance().getUser() == null) return;
 		String fileName = is.tryGetImage(SettingAttribute.getInstance()
 				.getUser().getUserIcon());
 		if (fileName != null) {

@@ -104,6 +104,7 @@ public class FriendService {
 	public boolean findFriend(String account, Message msg){
 		String url = HttpUtil.host + "/friend?FriendAccount=" + account;
 		try{
+			HttpUtil.get(url, msg);
 			return true;
 		}catch(Exception e){
 			e.printStackTrace();

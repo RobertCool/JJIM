@@ -70,13 +70,19 @@ public class CrowdController extends Controller{
 		}	
 		
 		if(friendId != null){
-			
+			//加入群
 			Friend friend = Friend.dao.findById(friendId);
 			
 			if(friend == null){
 				this.renderJson(ResourceMessage.unreachable());
 				return;
 			}else{
+				CrowdFriend tempCF = CrowdFriend.dao.findFirst("select * from Crowd_Friend where CrowdId=? and FriendId=?", crowdId, friendId);
+				if(tempCF!=null){
+					//已加入群
+					this.renderJson(ResourceMessage.error("你已加入该群"));
+					return;
+				}
 				CrowdFriend crowdFriend = new CrowdFriend().set("CrowdId", crowdId)
 						.set("FriendId",friendId).set("UserGroupNickName", friend.getStr("FriendNickName"))
 						.set("UserGroupPermission", UserStatus.ACTIVE.ordinal());
@@ -103,13 +109,13 @@ public class CrowdController extends Controller{
 		String crowdIcon = this.getPara("CrowdIcon");
 		
 		Crowd crowd = new Crowd().set("CrowdName", crowdName).set("CrowdNote", crowdNote)
-				.set("CrowdIcon", crowdIcon).set("UserId", user.getStr("UserId"));
+				.set("CrowdIcon", crowdIcon).set("UserId", user.get("UserId"));
 
 		boolean result = crowd.save();
 		
 		//将群创建者加入到群中，并设置为管理员
-		CrowdFriend crowdFriend = new CrowdFriend().set("FriendId", user.getStr("UserId"))
-				.set("CrowdId", crowd.getStr("CrowdId"))
+		CrowdFriend crowdFriend = new CrowdFriend().set("FriendId", user.get("UserId"))
+				.set("CrowdId", crowd.get("CrowdId"))
 				.set("UserGroupNickName", user.getStr("NickName"))
 				.set("UserGroupPermission", UserStatus.ADMIN.ordinal());
 		

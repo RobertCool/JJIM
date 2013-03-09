@@ -30,11 +30,62 @@
             android:textSize="24dp" />
 
         <ImageButton
+            android:id="@+id/add_btn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_alignParentRight="true"
             android:background="@drawable/gd_action_bar_item"
             android:src="@drawable/gd_action_bar_add" />
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/info_head"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/icon" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/info_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:text="370131556"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/info_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginTop="4dp"
+                android:text="370131556"
+                android:textSize="14dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:cacheColorHint="#00000000"
+        android:clickable="false"
+        android:divider="#00000000"
+        android:fadingEdge="none"
+        android:focusable="false" >
+    </ListView>
 
 </LinearLayout>

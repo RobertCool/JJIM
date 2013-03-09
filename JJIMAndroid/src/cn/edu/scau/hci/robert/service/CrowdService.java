@@ -39,6 +39,18 @@ public class CrowdService {
 		}
 	}
 	
+	/**加入指定的群*/
+	public boolean joinCrowd(Long crowdId, Long friendId, Message msg){
+		try{
+			String url = HttpUtil.host + "/crowd/" + crowdId + "?FriendId=" + friendId;
+			HttpUtil.get(url, msg);
+			return true;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	/**查看指定群的信息*/
 	public boolean getCrowd(Long crowdId, Message msg){
 		try{

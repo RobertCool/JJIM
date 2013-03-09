@@ -39,6 +39,9 @@ public class SettingAttribute  implements Serializable{
 	private String password = "";
 	private boolean isHideLine = false;
 	
+	private boolean friendListChanged = false;
+	private boolean crowdListChanged = false;
+	
 	public boolean isRemember() {
 		return isRemember;
 	}
@@ -68,6 +71,18 @@ public class SettingAttribute  implements Serializable{
 	}
 	public void setUser(User user) {
 		this.user = user;
+	}
+	public boolean isFriendListChanged() {
+		return friendListChanged;
+	}
+	public void setFriendListChanged(boolean friendListChanged) {
+		this.friendListChanged = friendListChanged;
+	}
+	public boolean isCrowdListChanged() {
+		return crowdListChanged;
+	}
+	public void setCrowdListChanged(boolean crowdListChanged) {
+		this.crowdListChanged = crowdListChanged;
 	}
 
 }
