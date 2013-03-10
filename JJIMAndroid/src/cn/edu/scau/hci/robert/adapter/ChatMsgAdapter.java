@@ -32,6 +32,7 @@ public class ChatMsgAdapter extends BaseAdapter{
 		public final static String MSG_TEXT = "msg_text";
 		public final static String MSG_HEAD = "msg_head";
 		public final static String MSG_TIME = "msg_time";
+		public final static String MSG_NAME = "msg_name";
 	
 	   private static final String TAG = ChatMsgAdapter.class.getSimpleName();
 	   
@@ -69,7 +70,7 @@ public class ChatMsgAdapter extends BaseAdapter{
 			  viewHolder.tvSendTime = (TextView) convertView.findViewById(R.id.tv_sendtime);
 			  viewHolder.tvContent = (TextView) convertView.findViewById(R.id.tv_chatcontent);
 			  viewHolder.ivHead = (ImageView)convertView.findViewById(R.id.iv_userhead);
-			  
+			  viewHolder.tvName = (TextView)convertView.findViewById(R.id.chat_nickname);
 			  convertView.setTag(viewHolder);
 		
 		if(list.get(position).get(MSG_HEAD)!=null){
@@ -77,6 +78,9 @@ public class ChatMsgAdapter extends BaseAdapter{
 		}
 		viewHolder.tvContent.setText(list.get(position).get(MSG_TEXT).toString());
 		viewHolder.tvSendTime.setText(list.get(position).get(MSG_TIME).toString());
+		if(list.get(position).get(MSG_NAME)!=null){
+			viewHolder.tvName.setText(list.get(position).get(MSG_NAME).toString());
+		}
 		
 		return convertView;
 	}
@@ -85,6 +89,7 @@ public class ChatMsgAdapter extends BaseAdapter{
         public TextView tvSendTime;
         public TextView tvContent;
         public ImageView ivHead;
+        public TextView tvName;
     }
 
 }

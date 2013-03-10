@@ -196,6 +196,7 @@ public class InfoActivity extends Activity implements OnClickListener{
 
 		@Override
 		public void handleMessage(Message msg) {
+			proDialog.dismiss();
 			switch(msg.what){
 			case IMAGE_GET:
 				if(msg.obj != null){

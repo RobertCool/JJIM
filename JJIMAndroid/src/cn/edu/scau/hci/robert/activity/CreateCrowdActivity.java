@@ -51,7 +51,7 @@ public class CreateCrowdActivity extends Activity implements OnClickListener {
 		this.setContentView(R.layout.create_crowd_layout);
 		this.initViews();
 		crowd  = new Crowd();
-		crowd.setCrowdNote("/JJIM/image/1");
+		crowd.setCrowdIcon("/JJIM/image/1");
 	}
 
 	private void initViews() {

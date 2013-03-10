@@ -39,6 +39,8 @@ public class GroupAdapter extends BaseExpandableListAdapter {
 	public final static String CHILD_NOTE = "child_note";
 	/**成员头像*/
 	public final static String CHILD_HEAD = "child_head";
+	/**是否有消息*/
+	public final static String CHILD_NEW = "child_new";
 
 	public GroupAdapter(List<Map<String,Object>> groupData, List<List<Map<String,Object>>> childData, Context context){
 		super();
@@ -63,6 +65,7 @@ public class GroupAdapter extends BaseExpandableListAdapter {
 		ImageView headImage = (ImageView)convertView.findViewById(R.id.im_list_image);
 		TextView nameText = (TextView)convertView.findViewById(R.id.im_list_name_text);
 		TextView noteText  = (TextView)convertView.findViewById(R.id.im_list_note_text);
+		ImageView iv = (ImageView)convertView.findViewById(R.id.im_list_new);
 				
 		convertView.setBackgroundResource(R.color.ChatingBG);
 		
@@ -72,6 +75,13 @@ public class GroupAdapter extends BaseExpandableListAdapter {
 		}else{
 			headImage.setImageBitmap((Bitmap) childData.get(groupPosition).get(childPosition).get(CHILD_HEAD));
 		}
+		
+		if(childData.get(groupPosition).get(childPosition).get(CHILD_NEW) == null || !(Boolean)childData.get(groupPosition).get(childPosition).get(CHILD_NEW)){
+			iv.setVisibility(View.INVISIBLE);
+		}else{
+			iv.setVisibility(View.VISIBLE);
+		}
+		
 		nameText.setText((String) childData.get(groupPosition).get(childPosition).get(CHILD_TEXT)==null?"未知昵称":(String) childData.get(groupPosition).get(childPosition).get(CHILD_TEXT));
 		noteText.setText((String) childData.get(groupPosition).get(childPosition).get(CHILD_NOTE)==null?"":(String) childData.get(groupPosition).get(childPosition).get(CHILD_NOTE));
 

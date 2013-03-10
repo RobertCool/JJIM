@@ -1,6 +1,8 @@
 package cn.edu.scau.hci.robert.entity;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,21 +37,33 @@ public class Message implements Serializable{
 	private Integer  messageType;
 	
 	private Integer messageStatus;
+	//是否为自己发出去的
+	private boolean isSend = false;
 	
 	public static Message toMessage(String jsonStr) throws JSONException{
 		JSONObject jsObj = new JSONObject(jsonStr);
 		Message message = new Message();
 		
 		message.setMessageId(jsObj.getLong("MessageId"));
-		message.setFriendId(jsObj.getLong("FriendId"));
-		message.setUserId(jsObj.getLong("UserId"));
+		message.setFriendId(jsObj.isNull("FriendId")?-1L:jsObj.getLong("FriendId"));
+		
+		message.setUserId(jsObj.isNull("UserId")?-1L:jsObj.getLong("UserId"));
+		
 		message.setMessageContent(jsObj.getString("MessageContent"));
 		message.setMessagePic(jsObj.getString("MessagePic"));
+//		message.setMessageTime(timeFormat(jsObj.getString("MessageTime")));
 		message.setMessageTime(jsObj.getString("MessageTime"));
 		message.setMessageType(jsObj.getInt("MessageType"));
 		message.setMessageStatus(jsObj.getInt("MessageStatus"));
 		
 		return message;
+	}
+	
+	private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
+	public static String timeFormat(String sDate){
+		Date date = new Date(sDate);
+		return format.format(date);
 	}
 
 	public Long getMessageId() {
@@ -115,6 +129,14 @@ public class Message implements Serializable{
 
 	public void setMessageTime(String messageTime) {
 		this.messageTime = messageTime;
+	}
+
+	public boolean isSend() {
+		return isSend;
+	}
+
+	public void setSend(boolean isSend) {
+		this.isSend = isSend;
 	}
 
 

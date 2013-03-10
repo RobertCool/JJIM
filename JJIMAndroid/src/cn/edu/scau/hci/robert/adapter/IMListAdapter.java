@@ -30,6 +30,8 @@ public class IMListAdapter extends BaseAdapter {
 	public static final String NAMETEXT  = "name_text";
 	/**个性签名*/
 	public static final String NOTETEXT = "note_text";
+	/**是否有新消息*/
+	public static final String NEWMESSAGE = "new_message";
 	
 	private List<Map<String,Object>> list = null;
 	private Context context;
@@ -73,6 +75,7 @@ public class IMListAdapter extends BaseAdapter {
 		ImageView headImage = (ImageView)convertView.findViewById(R.id.im_list_image);
 		TextView nameText = (TextView)convertView.findViewById(R.id.im_list_name_text);
 		TextView noteText  = (TextView)convertView.findViewById(R.id.im_list_note_text);
+		ImageView iv = (ImageView)convertView.findViewById(R.id.im_list_new);
 		
 		Bitmap headBitmap =(Bitmap) list.get(position).get(HEADIMAGE);
 		if(headBitmap == null){
@@ -80,6 +83,13 @@ public class IMListAdapter extends BaseAdapter {
 		}else{
 			headImage.setImageBitmap((Bitmap) list.get(position).get(HEADIMAGE));
 		}
+		if(list.get(position).get(NEWMESSAGE) == null || !(Boolean)list.get(position).get(NEWMESSAGE)){
+			iv.setVisibility(View.INVISIBLE);
+		}else{
+			iv.setVisibility(View.VISIBLE);
+		}
+		
+		
 		nameText.setText((String) list.get(position).get(NAMETEXT)==null?"未知昵称":(String) list.get(position).get(NAMETEXT));
 		noteText.setText((String) list.get(position).get(NOTETEXT)==null?"":(String) list.get(position).get(NOTETEXT));
 		

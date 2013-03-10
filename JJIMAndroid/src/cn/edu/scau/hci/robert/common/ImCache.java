@@ -33,4 +33,9 @@ public class ImCache {
 	
 	/**聊天的消息，key:好友编号*/
 	public static Map<Long, List<Message>> messages = new HashMap<Long, List<Message>>();
+	/**聊天的消息, key:群的编号*/
+	public static Map<Long, List<Message>> crowdMsgs = new HashMap<Long, List<Message>>();
+	
+	/**未读的聊天消息*/
+	public static List<Message> unreadMsgs = new ArrayList<Message>();
 }

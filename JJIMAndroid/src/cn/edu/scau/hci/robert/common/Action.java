@@ -13,6 +13,9 @@ public class Action {
 	/**访问JJIMService的Action*/
 	public static final String JJIMServiceAction = "cn.edu.scau.hci.robert.JJIMService";
 	
+	/**有新消息的Action*/
+	public static final String JJIMService_New_Message = "cn.edu.scau.hci.robert.NewMessage";
+	
 	/**查看好友分组*/
 	public static final String GROUP_LIST = "GROUP_LIST";
 	

@@ -68,7 +68,7 @@ public class MessageService {
 				pairs.add(p4);
 			}
 			
-			HttpUtil.post(url, msg, (NameValuePair[])pairs.toArray());
+			HttpUtil.post(url, msg, pairs.toArray(new NameValuePair[pairs.size()]));
 			return true;
 		}catch(Exception e){
 			e.printStackTrace();

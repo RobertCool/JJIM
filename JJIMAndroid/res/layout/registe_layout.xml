@@ -4,11 +4,65 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/actionBar"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:background="@color/LightBlue"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/back_btn"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="6dp"
+            android:background="@drawable/acm_button"
+            android:text="返回" />
+
+        <TextView
+            android:id="@+id/actionBar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="注册"
+            android:textSize="24dp" />
+
+        <Button
+            android:id="@+id/register_btn"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="6dp"
+            android:background="@drawable/acm_button"
+            android:text="注册" />
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="注册"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_margin="10dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/btn_style_blue"
+        android:text="Button" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/btn_style_blue"
+        android:text="Button" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/btn_style_blue"
+        android:text="Button" />
 
 </LinearLayout>

@@ -4,12 +4,16 @@
 package cn.edu.scau.hci.robert.activity;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +35,7 @@ import cn.edu.scau.hci.robert.service.GroupService;
 import cn.edu.scau.hci.robert.service.ImageService;
 import cn.edu.scau.hci.robert.util.HttpUtil;
 import cn.edu.scau.hci.robert.util.Logger;
+import cn.edu.scau.hci.robert.util.MessageType;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -50,7 +55,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,10 +67,11 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author robert
@@ -89,7 +94,7 @@ public class MainActivity extends Activity {
 	private List<Map<String, Object>> testList;
 
 	private List<List<Map<String, Object>>> friendsList = new ArrayList<List<Map<String, Object>>>();
-
+	
 	private IMListAdapter crowdAdapter;
 	private GroupAdapter friendAdapter;
 	private ChattingListAdapter chattingAdapter;
@@ -105,6 +110,8 @@ public class MainActivity extends Activity {
 	private final int IMAGE_GET = 6;
 
 	private boolean isCrowdLoaded = false;
+	
+	private MyReciver mReciver;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -118,6 +125,16 @@ public class MainActivity extends Activity {
 		chattingListView.setAdapter(chattingAdapter);
 
 		this.getGroupList();
+		this.getCrowdList();
+		
+		/*注册广播*/
+		IntentFilter filter = new IntentFilter(Action.JJIMService_New_Message);
+		mReciver = new MyReciver();
+		this.registerReceiver(mReciver, filter);
+		
+		/*启动后台服务*/
+		Intent intent = new Intent(MainActivity.this, JJIMService.class);
+		this.startService(intent);
 	}
 
 	/**
@@ -130,7 +147,7 @@ public class MainActivity extends Activity {
 
 		tabUnderlineImage = (ImageView) findViewById(R.id.im_tab_cursor);
 		one_text.setTextColor(Color.WHITE);
-		InitTabUnderline();
+		this.InitTabUnderline();
 
 		userHeadImage = (ImageView) findViewById(R.id.im_tab_bar_head);
 		this.getImage(R.id.im_tab_bar_head, SettingAttribute.getInstance()
@@ -170,18 +187,34 @@ public class MainActivity extends Activity {
 		two_text.setOnClickListener(new PageOnClickListener(1));
 		three_text.setOnClickListener(new PageOnClickListener(2));
 
+		//群聊
 		crowdListView.setOnItemClickListener(new OnItemClickListener() {
 
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+			public void onItemClick(AdapterView<?> arg0, View view, int position,
 					long arg3) {
-
-				Log.i("OnItemClick", arg0.getClass() + ":" + arg1.getClass()
-						+ ":" + arg2 + ":" + arg3);
-
+				ImageView iv = (ImageView)view.findViewById(R.id.im_list_new);
+				iv.setVisibility(View.INVISIBLE);
+				crowdList.get(position).put(IMListAdapter.NEWMESSAGE, false);
 				Intent intent = new Intent(MainActivity.this,
 						ChatActivity.class);
+				intent.putExtra("crowd", ImCache.crowds.get(position));
 				startActivity(intent);
 			}
+		});
+		//点击好友聊天
+		friendsListView.setOnChildClickListener(new OnChildClickListener(){
+
+			public boolean onChildClick(ExpandableListView parent, View v,
+					int groupPosition, int childPosition, long id) {
+				ImageView iv = (ImageView)v.findViewById(R.id.im_list_new);
+				iv.setVisibility(View.INVISIBLE);
+				friendsList.get(groupPosition).get(childPosition).put(GroupAdapter.CHILD_NEW, false);
+				Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+				intent.putExtra("friend", (Friend)friendsList.get(groupPosition).get(childPosition).get("friend"));
+				startActivity(intent);
+				return false;
+			}
+			
 		});
 
 		proDialog = new ProgressDialog(this);
@@ -220,7 +253,6 @@ public class MainActivity extends Activity {
 		new Thread(new Runnable() {
 
 			public void run() {
-				// TODO 获取分组信息
 				Message msg = new Message();
 				msg.what = GROUP_LIST;
 				GroupService gs = new GroupService();
@@ -273,8 +305,11 @@ public class MainActivity extends Activity {
 		}).start();
 	}
 
+	/*用于记录某个好友在Group中的位置*/
+	private Map<Long,String> gfPostion;
 	/** 显示分组 */
 	private void initGroups() {
+		gfPostion = new HashMap<Long,String>();
 		groupList = new ArrayList<Map<String, Object>>();
 		friendsList = new ArrayList<List<Map<String, Object>>>();
 		for (int i = 0; i < ImCache.groups.size(); i++) {
@@ -292,14 +327,15 @@ public class MainActivity extends Activity {
 						.getFriendNickName());
 				curChildMap.put(GroupAdapter.CHILD_NOTE, tempFriends.get(j)
 						.getFriendNote());
+				curChildMap.put("friend", tempFriends.get(j));
 				children.add(curChildMap);
+				gfPostion.put(tempFriends.get(j).getFriendId(), i+";" + j);
 			}
 			friendsList.add(children);
 		}
 		friendAdapter = new GroupAdapter(groupList, friendsList, this);
 		friendsListView.setAdapter(friendAdapter);
 		friendsListView.invalidate();
-		// TODO:这个地方要重新看看
 	}
 
 	/** 获取群列表 */
@@ -309,11 +345,26 @@ public class MainActivity extends Activity {
 		proDialog.show();
 		new Thread(new Runnable() {
 			public void run() {
-				// TODO Auto-generated method stub
 				Message msg = new Message();
 				msg.what = CROWD_LIST;
-				CrowdService cs = new CrowdService();
-				if (cs.getMyCrowd(msg)) {
+				HttpClient client = new HttpClient();
+				client.getState().addCookies(HttpUtil.getInstance().getState().getCookies());
+				GetMethod getMethod = new GetMethod(HttpUtil.host + "/crowd");
+				
+				try {
+					if(HttpStatus.SC_OK == client.executeMethod(getMethod)){
+						msg.obj = getMethod.getResponseBodyAsString();
+					}
+					else{
+						msg.obj = null;
+						msg.what = CROWD_ERROR;
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					msg.what = CROWD_ERROR;
+				} 
+				
+				if (msg.obj!=null) {
 					Logger.i("CROWD_LIST", (String) msg.obj);
 					try {
 						JSONObject jsObj = new JSONObject((String) msg.obj);
@@ -340,8 +391,11 @@ public class MainActivity extends Activity {
 		}).start();
 	}
 
+	/*用于记录群在列表中的位置*/
+	private Map<Long, String> cfPosition;
 	/** 显示群 */
 	private void initCrowds() {
+		cfPosition = new HashMap<Long, String>();
 		crowdList = new ArrayList<Map<String, Object>>();
 		Logger.i("Crowd_Size", ImCache.crowds.size() + "");
 		for (int i = 0; i < ImCache.crowds.size(); i++) {
@@ -351,6 +405,7 @@ public class MainActivity extends Activity {
 			map.put(IMListAdapter.NOTETEXT, ImCache.crowds.get(i)
 					.getCrowdNote());
 			crowdList.add(map);
+			cfPosition.put(ImCache.crowds.get(i).getCrowdId(), String.valueOf(i));
 		}
 
 		if (ImCache.crowds.size() <= 0) {
@@ -381,7 +436,6 @@ public class MainActivity extends Activity {
 		}).start();
 	}
 
-	// TODO:处理消息
 	private Handler mHandler = new Handler() {
 
 		@Override
@@ -460,14 +514,12 @@ public class MainActivity extends Activity {
 			this.finish();
 			break;
 		case Menu.FIRST + 3:
-			// TODO:查找
 			Intent intent = new Intent(MainActivity.this, SearchActivity.class);
 			this.startActivity(intent);
 			break;
 		case Menu.FIRST + 4:
 			Intent itent = new Intent(MainActivity.this, CreateCrowdActivity.class);
 			this.startActivity(itent);
-			// TODO:创建群
 			break;
 		case Menu.FIRST + 5:
 			// TODO:关于
@@ -526,7 +578,6 @@ public class MainActivity extends Activity {
 		}
 
 		public void onClick(View v) {
-			// TODO Auto-generated method stub
 			viewPager.setCurrentItem(index);
 		}
 
@@ -581,10 +632,10 @@ public class MainActivity extends Activity {
 			anim.setAnimationListener(new AnimationListener() {
 
 				public void onAnimationStart(Animation animation) {
-					if (!isCrowdLoaded) {
-						mHandler.sendEmptyMessage(CROWD_UPDATE);
-						isCrowdLoaded = true;
-					}
+//					if (!isCrowdLoaded) {
+//						mHandler.sendEmptyMessage(CROWD_UPDATE);
+//						isCrowdLoaded = true;
+//					}
 				}
 
 				public void onAnimationRepeat(Animation animation) {
@@ -626,7 +677,6 @@ public class MainActivity extends Activity {
 
 		@Override
 		public void destroyItem(View container, int position, Object object) {
-			// TODO 此处欲实现循环左右移动的效果，以后再实现
 			((ViewPager) container).removeView(views.get(position));
 		}
 
@@ -637,7 +687,6 @@ public class MainActivity extends Activity {
 
 		@Override
 		public Object instantiateItem(View container, int position) {
-			// TODO Auto-generated method stub
 			((ViewPager) container).addView(views.get(position), 0);
 			return views.get(position);
 		}
@@ -661,4 +710,69 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		this.unregisterReceiver(mReciver);
+		Intent intent = new Intent(MainActivity.this, JJIMService.class);
+		this.stopService(intent);
+	}
+
+	public class MyReciver extends BroadcastReceiver{
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Logger.i("MyReciver_1", intent.getAction());
+			
+			boolean isCrowdMessage = false , isFriendMessage = false;;
+			
+			for(int i = 0 ; i <  ImCache.unreadMsgs.size() ; i++){
+				cn.edu.scau.hci.robert.entity.Message msg = ImCache.unreadMsgs.get(i);
+
+				int mType = msg.getMessageType().intValue();
+				
+				if(mType == MessageType.System.ordinal()){
+					//系统消息
+					Toast.makeText(MainActivity.this, "系统消息："+msg.getMessageContent() + "\n" + msg.getMessageTime(), Toast.LENGTH_LONG).show();
+				}else if(mType == MessageType.Friend.ordinal()){
+					//来自好友的消息
+					List<cn.edu.scau.hci.robert.entity.Message> msgs;
+					if((msgs=ImCache.messages.get(msg.getUserId()))==null){
+						msgs = new ArrayList<cn.edu.scau.hci.robert.entity.Message>();
+						ImCache.messages.put(msg.getUserId(), msgs);
+					}
+					msgs.add(msg);
+					//设置有消息提醒
+					String[] s = gfPostion.get(msg.getUserId()).split(";");
+					friendsList.get(Integer.valueOf(s[0])).get(Integer.valueOf(s[1])).put(GroupAdapter.CHILD_NEW, true);
+					isFriendMessage = true;
+				}else if(mType == MessageType.Crowd.ordinal()){
+					//来自群的消息
+					List<cn.edu.scau.hci.robert.entity.Message> msgs;
+					if((msgs=ImCache.crowdMsgs.get(msg.getUserId()))==null){
+						msgs = new ArrayList<cn.edu.scau.hci.robert.entity.Message>();
+						ImCache.crowdMsgs.put(msg.getUserId(), msgs);
+					}
+					msgs.add(msg);
+					//设置有消息提醒
+					if(cfPosition == null || cfPosition.get(msg.getFriendId())==null ){ continue;}
+					Integer position = Integer.valueOf(cfPosition.get(msg.getFriendId()));
+					crowdList.get(position).put(IMListAdapter.NEWMESSAGE, true);
+					isCrowdMessage = true;
+				}else if(mType == MessageType.FriendStatus.ordinal()){
+					//好友状态改变
+				}
+			}
+			ImCache.unreadMsgs.clear();
+			if(isFriendMessage){
+				friendAdapter.notifyDataSetChanged();
+				isFriendMessage = false;
+			}
+			if(isCrowdMessage){
+				crowdAdapter.notifyDataSetChanged();
+				isCrowdMessage = false;
+			}
+			
+		}
+		
+	}
 }

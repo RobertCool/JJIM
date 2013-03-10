@@ -54,12 +54,13 @@ public class CommonController extends Controller {
 			
 			Friend friend = Friend.dao.findById(user.get("UserId"));
 			friend.set("FriendStatus", FriendStatus.Normal.ordinal()).update();//状态为已登录
-			Message message = new Message().set("MessageType", MessageType.FriendStatus.ordinal())
+			//修改用户状态的消息
+	/*		Message message = new Message().set("MessageType", MessageType.FriendStatus.ordinal())
 					.set("MessageStatus", MessageStatus.UnRead.ordinal())
 					.set("MessageContent",friend.getStr("FriendAccount") + ":" + friend.get("FriendStatus"))
 					.set("MessageTime", new Date())
 					.set("UserId", friend.get("FriendId"));
-			message.save();
+			message.save();*/
 			
 			result.setSuccess(true);
 			result.setResult(user);
